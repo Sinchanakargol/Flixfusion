@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type TvSeriesEpisodes {
+  episodeNumber Int
+  isReference   Boolean
+  seasonNumber  Int
+  title         String
+}
+
+model movie {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  director    String
+  releaseYear Int
+  title       String
+}
+
+model tvSeries {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  director    String
+  isReference Boolean
+
+  // 👇 Add this line: relation field pointing to episode[]
+  episodes episode[] @relation("TvSeriesEpisodes")
+}
+
+model episode {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  episodeNumber Int
+  seasonNumber  Int
+  isReference   Boolean
+  seriesId      String?   @db.ObjectId
+  tvSeries      tvSeries? @relation("TvSeriesEpisodes", fields: [seriesId], references: [id])
+}
